@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.chouchou.dao.RoleMapper" >
+  <resultMap id="RoleResultMap" type="cn.chouchou.entity.Role" >
+    <id column="role_Id" property="roleId" jdbcType="INTEGER" />
+    <result column="role_Name" property="roleName" jdbcType="VARCHAR" />
+    <result column="role_Desc" property="roleDesc" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  
+  <insert id="insert" parameterType="cn.chouchou.entity.Role" >
+    insert into role (role_Id, role_Name, role_Desc
+      )
+    values (#{roleId,jdbcType=INTEGER}, #{roleName,jdbcType=VARCHAR}, #{roleDesc,jdbcType=VARCHAR}
+      )
+  </insert>
+  
+  
+  
+</mapper>

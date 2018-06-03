@@ -1,0 +1,201 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans 
+      xmlns="http://www.springframework.org/schema/beans"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:context="http://www.springframework.org/schema/context"
+      xmlns:aop="http://www.springframework.org/schema/aop"
+      xmlns:tx="http://www.springframework.org/schema/tx"
+	  xmlns:mvc="http://www.springframework.org/schema/mvc"
+		
+      xsi:schemaLocation="
+	
+	  http://www.springframework.org/schema/beans 
+	  http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	  
+	  http://www.springframework.org/schema/context
+      http://www.springframework.org/schema/context/spring-context-3.0.xsd
+ 	  
+	  http://www.springframework.org/schema/aop 
+	  http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+	  
+	  http://www.springframework.org/schema/tx
+      http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+    
+      http://www.springframework.org/schema/mvc
+      http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+        
+      ">
+      
+      <bean  name="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" >
+           <property name="driverClass" value="com.mysql.jdbc.Driver"></property>
+           <property name="jdbcUrl" value="jdbc:mysql://10.2.0.17:3306/shiro"></property>
+           <property name="password" value="sa"></property>
+           <property name="user" value="root"></property>
+           
+            <property name="maxIdleTime" value="60"></property>  
+      </bean>
+      
+      
+      
+      
+      <bean name="sessionFactory"  class="org.mybatis.spring.SqlSessionFactoryBean">
+         <property name="configLocation" value="classpath:mybatis.xml"></property>
+         <property name="dataSource" ref="dataSource"> </property>
+         <property name="mapperLocations" value="classpath:cn.chouchou.dao.*"></property>
+      </bean>
+      
+      
+       <bean name="trManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+          <property name="dataSource" ref="dataSource"></property>
+        </bean>
+        
+        <tx:advice  id="txAdvice"  transaction-manager="trManager">
+            <tx:attributes>
+              <tx:method name="insert*" rollback-for="exception"  propagation="REQUIRED"/>
+              <tx:method name="add*" rollback-for="exception"  propagation="REQUIRED"/>
+              <tx:method name="dele*" rollback-for="exception"  propagation="REQUIRED"/>
+              <tx:method name="update*" rollback-for="exception"  propagation="REQUIRED"/>
+            </tx:attributes>
+        </tx:advice>
+        
+        <aop:config >
+            <aop:pointcut expression=" execution(* cn.chouchou.service.imp.*.*(..))" id="pt"/>
+            <aop:advisor advice-ref="txAdvice" pointcut-ref="pt"/>
+        </aop:config>
+        
+        
+        <context:component-scan base-package="cn.chouchou">
+            <context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+        </context:component-scan>
+        
+        <bean name="zowee" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+          <property name="basePackage" value="cn.chouchou.dao"></property>
+          <property name="sqlSessionFactory" ref="sessionFactory"></property> 
+        </bean>
+        
+        
+        <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+	      <property name="defaultEncoding" value="UTF-8"></property>
+	      <property name="maxUploadSize" value="5242880"></property>
+	      <property name="uploadTempDir" value="upload/temp"></property>
+        </bean>
+        
+        
+        
+       <!-- shiro config -->
+        <!-- realm配置 -->
+        <bean id="myrealm" class="cn.chouchou.shiro.Myrealm">
+             <property name="credentialsMatcher" ref="credentialMatcher"></property>
+        </bean>
+        <bean  id="credentialMatcher" class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+             <property name="hashIterations" value="1"></property>
+             <property name="hashAlgorithmName" value="md5"></property>
+        </bean>
+        
+         <!-- securityManager -->
+        <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+          <property name="realm" ref="myrealm"></property>
+          <!--  <property name="sessionManager"  ref="sessionManager"></property>-->
+          <property name="cacheManager" ref="cacheManager"></property> 
+          <property name="rememberMeManager" ref="rememberMeManager"></property> 
+        </bean> 
+         <!-- shiro的sessionManager 可以注入dao 供开发者做session相关操作 -->
+        <bean id="sessionManager" class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager">
+           <property name="deleteInvalidSessions" value="true"></property>
+           <property name="globalSessionTimeout" value="12000"></property>
+        </bean>
+         <!--shiro ehcache 配置 -->
+        <bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+           <property name="cacheManagerConfigFile" value="classpath:shiro-ehcache.xml"></property>
+        </bean>
+         <!-- rememberme config -->
+         <bean id="rememberMeManager" class="org.apache.shiro.web.mgt.CookieRememberMeManager">
+           <property name="cookie" ref="remeberMeCookie"></property>
+         </bean>
+          <bean id="remeberMeCookie" class="org.apache.shiro.web.servlet.SimpleCookie">
+               <!-- 过期30天 -->
+              <constructor-arg value="rememberMe"></constructor-arg>
+              <property name="maxAge" value="2592000"></property>
+          </bean>
+        
+        
+         <!-- shiro核心filter -->
+        <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+           <property name="securityManager" ref="securityManager"></property>
+           <property name="loginUrl" value="/user/login.action"></property>
+           <property name="unauthorizedUrl" value="/refuse.jsp"></property>
+           
+         <property name="filters">
+               <map>
+                 <entry key="authc" value-ref="myformFilter"></entry>
+              </map> 
+           </property>
+          
+           
+           <!-- 过虑器链定义，从上向下顺序执行，一般将/**放在最下边 -->
+		  <property name="filterChainDefinitions">
+			<value>
+				<!-- 对静态资源设置匿名访问 -->
+				/image/** = anon
+				/img/**=anon
+				/images/**=anon
+				/js/** = anon
+				/styles/** = anon
+				/css/**=anon
+				<!-- 验证码，可匿名访问 -->
+				/code.jsp = anon
+				/login.jsp=anon
+				<!-- /user/login.action=anon -->
+				
+				
+				<!-- 请求 logout.action地址，shiro去清除session-->
+				/logout.action = logout
+				
+				<!-- 权限配置一般使用注解式 -->
+				<!-- /user/add.action=perms[user:add] -->
+				
+				
+				<!-- 这里可以配置user filter 表示登陆或者记住我也可以访问 -->
+				/home.action=user
+				
+				<!-- /** = authc 所有url都必须认证通过才可以访问-->
+				/** = authc
+				
+				
+			</value>
+		</property>
+        </bean>
+        
+      <bean id="myformFilter" class="cn.chouchou.shiro.MyFormau">
+           <property name="passwordParam" value="password"></property>
+           <property name="rememberMeParam" value="rememberMe"></property>
+           <property name="usernameParam" value="username"></property>
+	   </bean> 
+	
+		<!-- 
+		<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
+		注解授权：AOP式方法级权限检查
+		<bean
+			class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
+			depends-on="lifecycleBeanPostProcessor"
+			>
+			<property name="proxyTargetClass" value="true" />
+		</bean>
+		<bean
+			class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+			<property name="securityManager" ref="securityManager" />
+		</bean> -->
+		
+		
+		
+       
+        
+</beans>      
+
+
+
+
+
+
+
+
