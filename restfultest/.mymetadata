@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="restfultest"
+  id="myeclipse.1526970073890"
+  context-root="/restfultest"
+  j2ee-spec="6.0"
+  archive="restfultest.war">
+  <attributes>
+    <attribute name="webrootdir" value="src/main/webapp" />
+  </attributes>
+</project-module>
+

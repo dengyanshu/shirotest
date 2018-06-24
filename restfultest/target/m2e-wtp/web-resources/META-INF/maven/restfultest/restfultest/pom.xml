@@ -1,0 +1,155 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>restfultest</groupId>
+  <artifactId>restfultest</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>war</packaging>
+  <name/>
+  <description/>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+   <parent>
+     <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-parent</artifactId>
+      <version>1.2.7.RELEASE</version>
+   </parent>
+  
+  <dependencies>
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-web</artifactId>
+      </dependency>
+      
+      <dependency>
+           <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+      </dependency>
+         
+           
+      <dependency>
+           <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+      </dependency>
+           
+      <dependency>
+           <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+      </dependency>
+      
+      <dependency>
+           <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+      </dependency>
+       
+     <!-- 禁用默认的logbak或者log4j2 启用我自己熟悉的log4j -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-logging</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+      <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-log4j</artifactId>
+      <version>1.3.8.RELEASE</version>
+    </dependency>
+     <!-- 禁用默认的logbak或者log4j2 启用我自己熟悉的log4j -->
+       <dependency>
+	    <groupId>c3p0</groupId>
+	    <artifactId>c3p0</artifactId>
+	    <version>0.9.1.2</version>
+	</dependency>
+	
+	 <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.24</version>
+     </dependency>
+     
+     
+        <!-- mybatis -->  
+        <dependency>  
+            <groupId>org.mybatis</groupId>  
+            <artifactId>mybatis</artifactId>  
+            <version>3.2.8</version>  
+        </dependency>  
+        <dependency>  
+            <groupId>org.mybatis</groupId>  
+            <artifactId>mybatis-spring</artifactId>  
+            <version>1.2.2</version>  
+         </dependency>
+
+    <!-- swagger  -->
+	<dependency>
+		<groupId>io.springfox</groupId>
+		<artifactId>springfox-swagger2</artifactId>
+		<version>2.6.1</version>
+	</dependency>
+
+	<dependency>
+		<groupId>io.springfox</groupId>
+		<artifactId>springfox-swagger-ui</artifactId>
+		<version>2.6.1</version>
+	</dependency>
+	
+	<!-- quartz maven -->
+	<dependency>  
+            <groupId>org.quartz-scheduler</groupId>  
+            <artifactId>quartz</artifactId>  
+            <version>2.2.1</version>  
+            <exclusions>  
+                <exclusion>  
+                    <artifactId>slf4j-api</artifactId>  
+                    <groupId>org.slf4j</groupId>  
+                </exclusion>  
+            </exclusions>  
+        </dependency>  
+        <dependency><!-- 该依赖必加，里面有sping对schedule的支持 -->  
+                       <groupId>org.springframework</groupId>  
+                       <artifactId>spring-context-support</artifactId>  
+        </dependency>  
+	<!-- quartz maven -->
+  </dependencies>
+  <build>
+      <!-- we need dao below *.xml -->
+    <resources>
+        <resource>  
+            <directory>src/main/resources</directory>  
+            <includes>  
+                <include>**/*.properties</include>  
+                <include>**/*.xml</include>  
+                <include>**/*.tld</include>  
+            </includes>  
+            <filtering>false</filtering>  
+        </resource>  
+        <resource>  
+            <directory>src/main/java</directory>  
+            <includes>  
+                <include>**/*.properties</include>  
+                <include>**/*.xml</include>  
+                <include>**/*.tld</include>  
+            </includes>  
+            <filtering>false</filtering>  
+        </resource>  
+    </resources>
+  
+    <plugins>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
